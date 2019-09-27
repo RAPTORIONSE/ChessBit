@@ -483,7 +483,7 @@ namespace chess_bit
             return column;
         }
 
-        private bool PawnWrapCheck(string grid, string comparedGrid, int expectedDifference)
+        private bool PawnWrapCheck(string grid, string comparedGrid, int expectedDifference) //OBS!!! Generic wrap check
         {
             int row = RowCheck(grid);                       // N%8==K,     N+8%8==K   (forward)
             int comparedRow = RowCheck(comparedGrid);       // N-1%8==K-1, N+7%8==K-1 (forward and left), Inverse this for right
@@ -495,6 +495,36 @@ namespace chess_bit
             }
 
             return false;
+        }
+
+        private bool RookPathing(string grid, string color, ref int gridsUpp, byte direction)
+        {
+            //recursive function
+            string eval = Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) - direction); //gets the tile upp from grid
+
+            if (PawnWrapCheck(grid, eval, direction))//if it wrapes then, don't check anymore
+            {
+                foreach (var piece in _allPieces)//check all pieces to see if the grid is occupied or not
+                {
+                    if (eval == piece.GetOccupiedGrid())
+                    {
+                        if (piece.GetTeam() != color) //check so it's an enemy
+                        {
+                            return true;//hostile at evaluated square
+                        }
+
+                        break;//stop recursive check
+                    }
+                    else
+                    {
+                        gridsUpp++;
+                        RookPathing(grid, color, ref gridsUpp, direction);
+                        break;//stop recursive check
+                    }
+                }
+            }
+            return false; //stop recursive check, no hostile found
+
         }
 
         #endregion
@@ -626,6 +656,37 @@ namespace chess_bit
                 case "Knight":
                     break;
                 case "Rook":
+                    #region rook
+                    int upp = 0;
+                    int down = 0;
+                    int left = 0;
+                    int right = 0;
+
+                    //recursive function
+                    bool enemyUppRookPathing = RookPathing(grid, color, ref upp, unchecked((byte)-1));
+                    bool enemyDownRookPathing = RookPathing(grid, color, ref down, (byte)+1);
+                    bool enemyLeftRookPathing = RookPathing(grid, color, ref left, unchecked((byte)-8));
+                    bool enemyRightRookPathing1 = RookPathing(grid, color, ref right, (byte)+8);
+
+                    for (byte i = 0; i < upp; i++)
+                    {
+                        Console.WriteLine("Can move to grid: " + Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) - i));
+                    }
+                    for (byte i = 0; i < down; i++)
+                    {
+                        Console.WriteLine("Can move to grid: " + Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) + i));
+                    }
+                    for (byte i = 0; i < left; i++)
+                    {
+                        Console.WriteLine("Can move to grid: " + Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) - unchecked((byte)(i * 8))));
+                    }
+                    for (byte i = 0; i < right; i++)
+                    {
+                        Console.WriteLine("Can move to grid: " + Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) + (byte)(i * 8)));
+                    }
+
+
+                    #endregion
                     break;
                 case "Pawn":
                     #region Pawn //Move to Pawn class
@@ -643,7 +704,7 @@ namespace chess_bit
                         case "Black":
                             forwardOne = Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) - 8);
                             takeDown = Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) - 7);
-                            takeUpp= Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) - 9);
+                            takeUpp = Enum.GetName(typeof(Program.BoardTile), (Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid) - 9);
                             break;
                         //NOTICE that takeUpp and takeDown is swapped for white and black
                         case "White":
