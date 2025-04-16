@@ -17,9 +17,7 @@ namespace chess_bit
                 Draw();
             } while (true);
         }
-
         #region Wrapping checks
-
         private int RowCheck(string grid) //returns the row
         {
             int row = ((int)((Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), grid))) % 8; //gets the value of the row with 0 being leftmost and 7 being rightmost
@@ -46,10 +44,8 @@ namespace chess_bit
             {
                 return true;
             }
-
             return false;
         }
-
         #endregion
 
         private void Initialize()
@@ -105,6 +101,7 @@ namespace chess_bit
 
             InputTaskSender();
         }
+        
         private int Max(int a, int b)
         {
             if (a > b)

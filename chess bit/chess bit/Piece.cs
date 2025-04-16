@@ -155,7 +155,6 @@ namespace chess_bit
         }
         #endregion
     }
-
     #region Piece derived classes
     //internal class Knight : Piece
     //{
