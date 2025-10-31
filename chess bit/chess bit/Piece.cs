@@ -23,6 +23,11 @@ namespace chess_bit
             //takes the bits allocated for position management gives the name of the grid
             return Enum.GetName(typeof(Program.BoardTile), ToByte(bitArray[10]) << 5 | ToByte(bitArray[11]) << 4 | ToByte(bitArray[12]) << 3 | ToByte(bitArray[13]) << 2 | ToByte(bitArray[14]) << 1 | ToByte(bitArray[15]));
         }
+        public int GetOccupiedGridValue()
+        {
+            //takes the bits allocated for position management gives the name of the grid
+            return (ToByte(bitArray[10]) << 5 | ToByte(bitArray[11]) << 4 | ToByte(bitArray[12]) << 3 | ToByte(bitArray[13]) << 2 | ToByte(bitArray[14]) << 1 | ToByte(bitArray[15]));
+        }
 
         public void SetOccupiedGrid(Program.BoardTile boardTile)
         {

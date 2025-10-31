@@ -6,6 +6,7 @@ namespace chess_bit
     {
         Piece[] _allPieces = new Piece[32];
         Piece selectedPiece;
+        private bool DrawMode = true;
 
         public GameHandler()
         {
@@ -13,8 +14,11 @@ namespace chess_bit
             do
             {
                 Clear();
+                if (DrawMode)
+                {
+                    Draw();
+                }
                 Update();
-                Draw();
             } while (true);
         }
         #region Wrapping checks
@@ -94,14 +98,25 @@ namespace chess_bit
 
         private void Update()
         {
-            foreach (var piece in _allPieces)
-            {
-                Console.WriteLine(piece.GetChessType() + " " + piece.GetTeam() + " " + piece.GetActive() + " " + piece.GetOccupiedGrid());
-            }
+            UpdatePieces();
 
             InputTaskSender();
         }
-        
+
+        private void UpdatePieces()
+        {
+            if (DrawMode)
+            {
+
+            }
+            else
+            {
+                foreach (var piece in _allPieces)
+                {
+                    Console.WriteLine(piece.GetChessType() + " " + piece.GetTeam() + " " + piece.GetActive() + " " + piece.GetOccupiedGrid());
+                }
+            }
+        }
         private int Max(int a, int b)
         {
             if (a > b)
@@ -113,7 +128,108 @@ namespace chess_bit
 
         private void Draw()
         {
+            (string, string)[] board = new (string, string)[64] {
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "),
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "),
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "),
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "),
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "),
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "),
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "),
+                ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," "), ("Grey"," ")};
+            foreach (var piece in _allPieces)
+            {
+                string type = " ";
+                if (piece.GetActive() == "Alive")
+                {
+                    switch (piece.GetChessType())
+                    {
+                        case "King":
+                            type = "K";
+                            break;
+                        case "Queen":
+                            type = "Q";
+                            break;
+                        case "Bishop":
+                            type = "B";
+                            break;
+                        case "Knight":
+                            type = "H";
+                            break;
+                        case "Rook":
+                            type = "R";
+                            break;
+                        case "Pawn":
+                            type = "P";
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (piece.GetTeam())
+                    {
+                        case "White":
+                            board[piece.GetOccupiedGridValue()] = ("White", type);
+                            break;
+                        case "Black":
+                            board[piece.GetOccupiedGridValue()] = ("Black", type);
+                            break;
+                        default:
+                            board[piece.GetOccupiedGridValue()] = (board[piece.GetOccupiedGridValue()].Item1, type);
+                            break;
+                    }
 
+                }
+
+            }
+            for (int i = 0; i < board.Length; i++)
+            {
+                #region ColorGrid
+                if ((i / 8) % 2 == 1)
+                {
+                    if (i % 2 == 1)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Gray;
+                    }
+                    else
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkGray;
+                    }
+                }
+                else
+                {
+                    if (i % 2 == 1)
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkGray;
+                    }
+                    else
+                    {
+                        Console.BackgroundColor = ConsoleColor.Gray;
+                    }
+                }
+                #endregion
+                //Console.ForegroundColor =;
+                if (board[i].Item1 == "White")
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else if (board[i].Item1 == "Black")
+                {
+                    Console.ForegroundColor = ConsoleColor.Black;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
+
+                Console.Write(board[i].Item2);
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.BackgroundColor = ConsoleColor.Black;
+                if (i % 8 == 7)
+                {
+                    Console.Write("\n");
+                }
+
+            }
         }
 
         private void Clear()
@@ -123,35 +239,42 @@ namespace chess_bit
 
         private void InputTaskSender()
         {
-            bool endTurn = false;
+            bool endTurn = true;
             do
             {
                 Console.WriteLine("Start of new input");
                 string userInput = Console.ReadLine();
                 userInput.ToUpper();
                 var userInputs = userInput.Split(' ');
-                switch (userInputs[0])
+                if (userInputs.Length == 2)
                 {
-                    case "SELECT":
-                        Console.WriteLine("Entered select");
-                        Select(userInputs[1]);
-                        break;
-                    case "MOVE":
-                        Console.WriteLine("Entered Move");
-                        endTurn = Move(userInputs[1]);
-                        break;
-                    case "TAKE":
-                        Console.WriteLine("entered Take");
-                        endTurn = Take(userInputs[1]);
-                        break;
-                    default:
-                        break;
+                    switch (userInputs[0])
+                    {
+                        case "SELECT":
+                            //Console.WriteLine("Entered select");
+                            endTurn = Select(userInputs[1]);
+                            break;
+                        case "MOVE":
+                            //Console.WriteLine("Entered Move");
+                            endTurn = Move(userInputs[1]);
+                            break;
+                        case "TAKE":
+                            //Console.WriteLine("entered Take");
+                            endTurn = Take(userInputs[1]);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-
+                else
+                {
+                    endTurn = false;
+                    Console.WriteLine("Invalid Command");
+                }
             } while (!endTurn);
         }
 
-        private void Select(string gridFrom)
+        private bool Select(string gridFrom)
         {
             foreach (var piece in _allPieces)
             {
@@ -160,14 +283,15 @@ namespace chess_bit
                     if (piece.GetActive() == "Alive")
                     {
                         selectedPiece = piece;
-                        Clear();
-                        Console.WriteLine("Selected " + selectedPiece.GetChessType() + " at " + selectedPiece.GetOccupiedGrid() + " of color " + selectedPiece.GetTeam());
+                        //Clear();
+                        //Console.WriteLine("Selected " + selectedPiece.GetChessType() + " at " + selectedPiece.GetOccupiedGrid() + " of color " + selectedPiece.GetTeam());
                         ShowLegalMoves();
-                        return;
+                        return true;
                     }
                 }
             }
             Console.WriteLine("Failed to select piece");
+            return false;
         }
 
         private void ShowLegalMoves()
@@ -925,6 +1049,7 @@ namespace chess_bit
         {
             if (selectedPiece == null)
             {
+                Console.WriteLine("No selected piece OR invalid grid, unable to take");
                 return false;
             }
             foreach (var piece in _allPieces)
@@ -932,9 +1057,9 @@ namespace chess_bit
                 if (piece.GetOccupiedGrid() == gridTo && piece.GetTeam() != selectedPiece.GetTeam())
                 {
                     piece.SetActive(1);
-                    Console.WriteLine("Took " + piece.GetChessType() + " on " + piece.GetOccupiedGrid() + " with " + selectedPiece.GetChessType() + " from " + selectedPiece.GetOccupiedGrid());
+                    //Console.WriteLine("Took " + piece.GetChessType() + " on " + piece.GetOccupiedGrid() + " with " + selectedPiece.GetChessType() + " from " + selectedPiece.GetOccupiedGrid());
                     selectedPiece.SetOccupiedGrid((Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), gridTo));
-                    Clear();
+                    //Clear();
                     selectedPiece = null;
                     return true;
                 }
@@ -948,6 +1073,7 @@ namespace chess_bit
         {
             if (selectedPiece == null)
             {
+                Console.WriteLine("No selected piece OR invalid grid, unable to move");
                 return false;
             }
             //Parse Move Grid_A_3 to Grid_A_4
@@ -962,8 +1088,8 @@ namespace chess_bit
                 }
             }
             selectedPiece.SetOccupiedGrid((Program.BoardTile)Enum.Parse(typeof(Program.BoardTile), gridTo));
-            Clear();
-            Console.WriteLine("Moved " + selectedPiece.GetChessType() + " to " + selectedPiece.GetOccupiedGrid());
+            //Clear();
+            //Console.WriteLine("Moved " + selectedPiece.GetChessType() + " to " + selectedPiece.GetOccupiedGrid());
             selectedPiece = null;
             return true;
         }
